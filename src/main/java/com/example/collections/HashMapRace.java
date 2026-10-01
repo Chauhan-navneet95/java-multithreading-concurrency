@@ -1,5 +1,6 @@
 package com.example.collections;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -7,25 +8,29 @@ import java.util.concurrent.ConcurrentHashMap;
 public class HashMapRace {
     public static void main(String[] args) {
         //HashMap
-        Map<Integer, Integer> map = new HashMap<>();
+        //Map<Integer, Integer> map = new HashMap<>();
+
+        //synchronized HashMap
+        Map<Integer, Integer> map = Collections.synchronizedMap(new HashMap<>());
 
         //ConcurrentHashMap
         //Map<Integer, Integer> map = new ConcurrentHashMap<>();
-        
+        int LIMIT = 1_000_000;
+
         Thread t1= new Thread(()-> {
-            for( int i=0; i<100_000_000;i++){
+            for( int i=0; i<LIMIT;i++){
                 map.put(i, i);
             }
         });
         
         Thread t2= new Thread(()-> {
-            for( int i=0; i<100_000_000;i++){
+            for( int i=0; i<LIMIT;i++){
                 map.put(i, i);
             }
         });
 
         Thread t3= new Thread(()-> {
-            for( int i=0; i<100_000_000;i++){
+            for( int i=0; i<LIMIT;i++){
                 map.put(i, i);
             }
         });
@@ -45,8 +50,18 @@ public class HashMapRace {
         }
         
 
-        System.out.println("Expected Size: 200_000_000");
+        System.out.println("Expected Size: "+ LIMIT);
         System.out.println("Actual Size: "+ map.size());
+
+        //some more experiment
+        int missing = 0;
+        for (int i = 0; i < LIMIT; i++) {
+            if (!map.containsKey(i)) {
+                missing++;
+            }
+        }
+
+        System.out.println("Missing keys = " + missing);
     }
 
 }
